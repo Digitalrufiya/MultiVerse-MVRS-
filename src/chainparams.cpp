@@ -14,6 +14,7 @@
 #include <boost/algorithm/string/classification.hpp>
 #include <boost/algorithm/string/split.hpp>
 
+// Genesis block creation function
 static CBlock CreateGenesisBlock(const char* pszTimestamp, const CScript& genesisOutputScript,
                                  uint32_t nTime, uint32_t nNonce, uint32_t nBits,
                                  int32_t nVersion, const CAmount& genesisReward)
@@ -55,58 +56,32 @@ class CMainParams : public CChainParams {
 public:
     CMainParams() {
         strNetworkID = CBaseChainParams::MAIN;
-        consensus.signet_blocks = false;
-        consensus.signet_challenge.clear();
+
+        // Blockchain rules
         consensus.nSubsidyHalvingInterval = 500000; // halving every 500k blocks
-        consensus.BIP16Height = 218579;
-        consensus.BIP34Height = 710000;
-        consensus.BIP34Hash = uint256S("0x0");
-        consensus.BIP65Height = 918684;
-        consensus.BIP66Height = 811879;
-        consensus.CSVHeight = 1201536;
-        consensus.SegwitHeight = 1201536;
-        consensus.MinBIP9WarningHeight = 1209600;
-
-        // PoW parameters
+        consensus.nPowTargetSpacing = 60;          // 1 minute per block
         consensus.powLimit = uint256S("00000fffffffffffffffffffffffffffffffffffffffffffffffffffffffffff");
-        consensus.nPowTargetTimespan = 3.5 * 24 * 60 * 60; // 3.5 days (difficulty adjustment interval)
-        consensus.nPowTargetSpacing = 60; // 1 minute per block for mobile mining
-        consensus.fPowAllowMinDifficultyBlocks = false;
-        consensus.fPowNoRetargeting = false;
 
-        consensus.nRuleChangeActivationThreshold = 6048; // 75% of 8064
-        consensus.nMinerConfirmationWindow = 8064;
-
-        // Deployments
-        consensus.vDeployments[Consensus::DEPLOYMENT_TESTDUMMY].bit = 28;
-        consensus.vDeployments[Consensus::DEPLOYMENT_TESTDUMMY].nStartTime = Consensus::BIP9Deployment::NEVER_ACTIVE;
-        consensus.vDeployments[Consensus::DEPLOYMENT_TESTDUMMY].nTimeout = Consensus::BIP9Deployment::NO_TIMEOUT;
-
+        // Message start bytes and port
         pchMessageStart[0] = 0xf1;
         pchMessageStart[1] = 0xc2;
         pchMessageStart[2] = 0xb3;
         pchMessageStart[3] = 0xa4;
         nDefaultPort = 19777;
-        nPruneAfterHeight = 100000;
 
-        // Genesis block (placeholder values, mine your own later)
+        // Genesis block placeholder
         genesis = CreateGenesisBlock(1734220800, 0, 0x1e0ffff0, 1, 50 * COIN);
         consensus.hashGenesisBlock = genesis.GetHash();
-        // After mining your own genesis, replace these with the actual hashes
-        // assert(consensus.hashGenesisBlock == uint256S("0x..."));
-        // assert(genesis.hashMerkleRoot == uint256S("0x..."));
+        // After mining, replace the following:
+        // consensus.hashGenesisBlock = uint256S("<MINED_HASH>");
+        // assert(consensus.hashGenesisBlock == uint256S("<MINED_HASH>"));
+        // assert(genesis.hashMerkleRoot == uint256S("<MINED_MERKLE>"));
 
-        vSeeds.clear(); // add your own seeds here
-
-        base58Prefixes[PUBKEY_ADDRESS] = std::vector<unsigned char>(1,48);
-        base58Prefixes[SCRIPT_ADDRESS] = std::vector<unsigned char>(1,5);
-        base58Prefixes[SCRIPT_ADDRESS2] = std::vector<unsigned char>(1,50);
-        base58Prefixes[SECRET_KEY] = std::vector<unsigned char>(1,176);
-        base58Prefixes[EXT_PUBLIC_KEY] = {0x04, 0x88, 0xB2, 0x1E};
-        base58Prefixes[EXT_SECRET_KEY] = {0x04, 0x88, 0xAD, 0xE4};
-
-        bech32_hrp = "mvrs"; // mainnet bech32 prefix
-        mweb_hrp = "mvrsw";  // MWEB prefix
+        // Addresses
+        bech32_hrp = "mvrs";
+        base58Prefixes[PUBKEY_ADDRESS] = {48};
+        base58Prefixes[SCRIPT_ADDRESS] = {5};
+        base58Prefixes[SECRET_KEY] = {176};
     }
 };
 
@@ -117,37 +92,37 @@ class CTestNetParams : public CChainParams {
 public:
     CTestNetParams() {
         strNetworkID = CBaseChainParams::TESTNET;
-        consensus.nPowTargetSpacing = 60; // 1 minute per block
+        consensus.nPowTargetSpacing = 60;
         pchMessageStart[0] = 0xf2;
         pchMessageStart[1] = 0xc3;
         pchMessageStart[2] = 0xb4;
         pchMessageStart[3] = 0xa5;
         nDefaultPort = 19778;
+
         genesis = CreateGenesisBlock(1734220800, 0, 0x1e0ffff0, 1, 50 * COIN);
         consensus.hashGenesisBlock = genesis.GetHash();
-        vSeeds.clear();
+
         bech32_hrp = "tmvrs";
-        mweb_hrp = "tmvrsw";
     }
 };
 
 /**
- * Regression test
+ * Regtest
  */
 class CRegTestParams : public CChainParams {
 public:
-    explicit CRegTestParams(const ArgsManager& args) {
+    explicit CRegTestParams(const ArgsManager&) {
         strNetworkID = CBaseChainParams::REGTEST;
-        consensus.nPowTargetSpacing = 60; // 1 minute per block
+        consensus.nPowTargetSpacing = 60;
         pchMessageStart[0] = 0xf3;
         pchMessageStart[1] = 0xc4;
         pchMessageStart[2] = 0xb5;
         pchMessageStart[3] = 0xa6;
         nDefaultPort = 19779;
+
         genesis = CreateGenesisBlock(1734220800, 0, 0x207fffff, 1, 50 * COIN);
         consensus.hashGenesisBlock = genesis.GetHash();
-        vSeeds.clear();
+
         bech32_hrp = "rmvrs";
-        mweb_hrp = "rmvrsw";
     }
 };
